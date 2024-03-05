@@ -1,0 +1,33 @@
+#5- creating a point-based map
+
+pip install folium
+
+import folium
+import re
+
+#extracting latitute and longitude first
+def extract_lat_long(location_str):
+    try:
+        match = re.search(r'POINT \(([^ ]+) ([^ ]+)\)', location_str)
+        return float(match.group(2)), float(match.group(1))
+    except:
+        return None, None
+
+#function to a sample 
+sample_df = df_all.sample(n=1000, random_state=1)  # Using a sample of 1000 for demonstration
+sample_df['lat_long'] = sample_df['Vehicle Location'].apply(extract_lat_long)
+
+#removing rows where the data can't be extracted
+sample_df = sample_df.dropna(subset=['lat_long'])
+
+# base map
+map = folium.Map(location=[sample_df['lat_long'].iloc[0][0], sample_df['lat_long'].iloc[0][1]], zoom_start=10)
+
+#adding points
+for lat_long in sample_df['lat_long']:
+    folium.Marker(location=[lat_long[0], lat_long[1]]).add_to(map)
+
+# the map
+map.save('/Users/amandachaves/Downloads/output.html')
+map_path = '/Users/amandachaves/Downloads/output.html'
+map_path
